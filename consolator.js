@@ -10,15 +10,15 @@
     var apply = function (data) {
       if (typeof data !== 'string') return;
       data = split(data);
-      var dataArr = [''];
+      var dataArray = [''];
       var i = data.length;
       while (i--) if (data[i]) {
         data[i] = objectify(data[i]);
         var keys = Object.keys(data[i]);
         var k = keys.length;
-        dataArr = env === 'browser' ? support.styles ? browser(dataArr, data[i], keys, k) : bypass(dataArr, data[i]) : server(dataArr, data[i], keys, k);
+        dataArray = env === 'browser' ? support.styles ? browser(dataArray, data[i], keys) : bypass(dataArray, data[i]) : server(dataArray, data[i], keys);
       }
-      return dataArr;
+      return dataArray;
     };
     var digest = function (data, attribute, value) {
       if (typeof data !== 'string') return;
@@ -37,23 +37,25 @@
     };
 
     // context
-    var bypass = function (dataArr, data) {
-      dataArr[0] = dataArr[0] + data.msg;
-      return dataArr;
+    var bypass = function (dataArray, data) {
+      dataArray[0] = dataArray[0] + data.msg;
+      return dataArray;
     };
-    var server = function (dataArr, data, keys, k) {
+    var server = function (dataArray, data, keys) {
       var csi = '\x1B[';
       var styles = [];
+      var k = keys.length;
       while (k--) if (keys[k] !== 'msg') styles.push(( keys[k] !== 'background-color' ? ansiKeys[data[keys[k]]] : ansiKeys[data[keys[k]]] + 10 ));
-      dataArr[0] = dataArr[0] + csi + styles.join(';') + 'm' + data.msg + csi + '0m';
-      return dataArr;
+      dataArray[0] = dataArray[0] + csi + styles.join(';') + 'm' + data.msg + csi + '0m';
+      return dataArray;
     };
-    var browser = function (dataArr, data, keys, k) {
-      dataArr[0] = dataArr[0] + '%c' + data.msg;
+    var browser = function (dataArray, data, keys) {
+      dataArray[0] = dataArray[0] + '%c' + data.msg;
       var styles = [];
+      var k = keys.length;
       while (k--) if (keys[k] !== 'msg') styles.push(keys[k] + ': ' + data[keys[k]]);
-      dataArr.push(styles.join('; '));
-      return dataArr;
+      dataArray.push(styles.join('; '));
+      return dataArray;
     };
 
     // helpers
