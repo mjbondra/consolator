@@ -16,7 +16,7 @@ Server:
 var Consolator = require('consolator');
 var c = new Consolator();
 
-c.log(c.green('This demostrates ' + c.bold('nested')) + 'styles');
+c.log(c.green('This demostrates ' + c.bold('nested')) + ' styles');
 ```
 
 Browser (supports styled output with Chrome and Firebug):
@@ -26,7 +26,7 @@ Browser (supports styled output with Chrome and Firebug):
 ```
 var c = new Consolator();
 
-c.log(c.green('This demostrates ' + c.bold('nested')) + 'styles');
+c.log(c.green('This demostrates ' + c.bold('nested')) + ' styles');
 ```
 
 
