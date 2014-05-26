@@ -10,9 +10,26 @@ npm install consolator
 
 ## Usage
 
+Server:
+
 ```
-var console = require('consolator');
+var Consolator = require('consolator');
+var c = new Consolator();
+
+c.log(c.green('This demostrates ' + c.bold('nested')) + 'styles');
 ```
+
+Browser (supports styled output with Chrome and Firebug):
+
+```<script src="consolator.min.js"></script>```
+
+```
+var c = new Consolator();
+
+c.log(c.green('This demostrates ' + c.bold('nested')) + 'styles');
+```
+
+
 
 ## Tests
 
