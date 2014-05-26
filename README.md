@@ -1,6 +1,6 @@
 # consolator
 
-A Node.js framework for printing messages to your console.
+A javascript library for printing styled messages to your console.
 
 ## Installation
 
@@ -27,7 +27,7 @@ npm test
 
 The MIT License (MIT)
 
-Copyright (c) 2013 Michael J. Bondra < [mjbondra@gmail.com](mailto:mjbondra@gmail.com) >
+Copyright (c) 2014 Michael J. Bondra < [mjbondra@gmail.com](mailto:mjbondra@gmail.com) >
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

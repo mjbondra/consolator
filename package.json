@@ -1,16 +1,17 @@
 {
   "name": "consolator",
   "version": "0.0.1",
-  "description": "A Node.js framework for printing messages to your console.",
+  "description": "A javascript library for printing styled messages to your console.",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test ./node_modules/.bin/mocha --harmony --reporter spec test/index.js"
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha --reporter spec test/index.js"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/mjbondra/consolator.git"
   },
   "keywords": [
+    "ansi",
     "color",
     "console",
     "log",
@@ -24,6 +25,10 @@
   },
   "homepage": "https://github.com/mjbondra/consolator",
   "devDependencies": {
+    "gulp": "^3.6.2",
+    "gulp-rename": "^1.2.0",
+    "gulp-sourcemaps": "^0.3.1",
+    "gulp-uglify": "^0.3.0",
     "mocha": "^1.19.0",
     "should": "^3.3.2",
     "supertest": "^0.13.0"
