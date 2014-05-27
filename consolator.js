@@ -1,3 +1,5 @@
+// Consolator - A javascript library for printing styled messages to your console.
+//
 
 (function () {
   var Consolator = (function () {
@@ -14,9 +16,7 @@
       var i = data.length;
       while (i--) if (data[i]) {
         data[i] = objectify(data[i]);
-        var keys = Object.keys(data[i]);
-        var k = keys.length;
-        dataArray = env === 'browser' ? support.styles ? browser(dataArray, data[i], keys) : bypass(dataArray, data[i]) : server(dataArray, data[i], keys);
+        dataArray = env === 'browser' ? support.styles() ? browser(dataArray, data[i]) : bypass(dataArray, data[i]) : server(dataArray, data[i]);
       }
       return dataArray;
     };
@@ -33,7 +33,9 @@
       return dataString;
     };
     var post = function (method, args) {
-      console[method].apply(console, apply(args));
+      if (!support.console(method)) return;
+      if (support.apply(method)) return console[method].apply(console, apply(args));
+      return console[method](apply(args).join(' '));
     };
 
     // context
@@ -41,17 +43,19 @@
       dataArray[0] = dataArray[0] + data.msg;
       return dataArray;
     };
-    var server = function (dataArray, data, keys) {
+    var server = function (dataArray, data) {
       var csi = '\x1B[';
       var styles = [];
+      var keys = Object.keys(data);
       var k = keys.length;
       while (k--) if (keys[k] !== 'msg') styles.push(( keys[k] !== 'background-color' ? ansiKeys[data[keys[k]]] : ansiKeys[data[keys[k]]] + 10 ));
       dataArray[0] = dataArray[0] + csi + styles.join(';') + 'm' + data.msg + csi + '0m';
       return dataArray;
     };
-    var browser = function (dataArray, data, keys) {
+    var browser = function (dataArray, data) {
       dataArray[0] = dataArray[0] + '%c' + data.msg;
       var styles = [];
+      var keys = Object.keys(data);
       var k = keys.length;
       while (k--) if (keys[k] !== 'msg') styles.push(keys[k] + ': ' + data[keys[k]]);
       dataArray.push(styles.join('; '));
@@ -221,11 +225,10 @@
     };
 
     // timestamp
-
+    C.prototype.date = C.prototype.time = function () {};
 
     // objects and arrays
-    C.prototype.array = function () {};
-    C.prototype.object = function () {};
+    C.prototype.array = C.prototype.object = function () {};
 
     // manual
     C.prototype.ansi = function () {};
@@ -263,9 +266,15 @@
     // environment/support
     var env = typeof window !== 'undefined' ? 'browser' : 'server';
     var support = {};
-    support.apply = false;
-    support.console = false;
-    support.styles = ( typeof window !== 'undefined' && ( window.chrome || console.firebug || console.log.toString().indexOf('apply') !== -1 ));
+    support.apply = function (method) {
+      return !!console[method].apply;
+    };
+    support.console = function (method) {
+      return ( typeof console !== 'undefined' && console[method] );
+    };
+    support.styles = function () {
+      return ( window.chrome || console.firebug || ( console.log.toString && console.log.toString().indexOf('apply') !== -1 ));
+    };
 
     return C;
   })();

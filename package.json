@@ -2,7 +2,7 @@
   "name": "consolator",
   "version": "0.0.1",
   "description": "A javascript library for printing styled messages to your console.",
-  "main": "index.js",
+  "main": "consolator.js",
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/.bin/mocha --reporter spec test/index.js"
   },
