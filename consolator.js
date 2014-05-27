@@ -8,8 +8,8 @@
 
     // application & consumption
     var apply = function (data) {
-      if (typeof data !== 'string') return;
-      data = split(data);
+      if (!data) return;
+      data = split(stringify(data));
       var dataArray = [''];
       var i = data.length;
       while (i--) if (data[i]) {
@@ -21,8 +21,8 @@
       return dataArray;
     };
     var digest = function (data, attribute, value) {
-      if (typeof data !== 'string') return;
-      data = split(data);
+      if (!data) return;
+      data = split(stringify(data));
       var dataStr = '';
       var i = data.length;
       while (i--) if (data[i]) {
@@ -66,6 +66,13 @@
     };
     var split = function (data) {
       return data.match(/\{\{\{\{.*?\}\}\}\}|.*?(?=\{\{\{\{)|.*/g).reverse();
+    };
+    var stringify = function (data) {
+      var type = typeof data;
+      if (type === 'object') return JSON.stringify(data);
+      if (type === 'number') return data.toString();
+      if (type === 'string') return data;
+      return '';
     };
 
     // extentions of the original console object
