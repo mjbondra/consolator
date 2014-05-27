@@ -23,14 +23,14 @@
     var digest = function (data, attribute, value) {
       if (!data) return;
       data = split(stringify(data));
-      var dataStr = '';
+      var dataString = '';
       var i = data.length;
       while (i--) if (data[i]) {
         data[i] = objectify(data[i]);
         if (!data[i][attribute]) data[i][attribute] = value;
-        dataStr = dataStr + '{{{' + JSON.stringify(data[i]) + '}}}';
+        dataString = dataString + '{{{' + JSON.stringify(data[i]) + '}}}';
       }
-      return dataStr;
+      return dataString;
     };
     var post = function (method, args) {
       console[method].apply(console, apply(args));
