@@ -1,12 +1,28 @@
-# consolator
+# Consolator
 
-A javascript library for printing styled messages to your console.
+A JavaScript library for printing styled messages to your console.
+
+## Caveat
+
+This is a proof of concept -- that a single library, with a single API, can create styled console output on both the server (Node.js) and in the browser (Chrome & Firebug).
+
+Significant and/or breaking changes will be marked as a major release (0.x.x, 1.x.x, 2.x.x, etc).
+
+All releases before 1.x.x should be considered unstable, and unfit for production. Subsequent to that release, even-numbered minor releases will denote stable releases (1.0.x, 1.2.x, etc), while odd-numbered minor releases will be unstable (1.1.x, 1.3.x, etc).
 
 ## Installation
 
 ```
 npm install consolator
 ```
+
+## How It (Currently) Works
+
+Consolator wraps messages in POJOs and then stringifies them, adding a surrounding, customizable opening and closing token ('{{{' and '}}}' by default).
+
+Because of how it currently works, it requires that the consolator log method be used to render these strings to the console -- using the native console methods directly will yield a printed string that contains Consolator objects and tokens rather than styled output.
+
+If the native console does not support styled output, messages are simply printed without styles.
 
 ## Usage
 
@@ -33,12 +49,7 @@ c.log(c.green('This demostrates ' + c.bold('nested')) + ' styles');
 
 ## Tests
 
-From root directory:
-
-```
-npm install
-npm test
-```
+Coming soon.
 
 ## License
 
