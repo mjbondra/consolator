@@ -1,7 +1,7 @@
 {
   "name": "consolator",
   "version": "0.0.1",
-  "description": "A javascript library for printing styled messages to your console.",
+  "description": "A javascript library for printing styled messages to the console.",
   "main": "consolator.js",
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/.bin/mocha --reporter spec test/index.js"
@@ -27,7 +27,6 @@
   "devDependencies": {
     "gulp": "^3.6.2",
     "gulp-rename": "^1.2.0",
-    "gulp-sourcemaps": "^0.3.1",
     "gulp-uglify": "^0.3.0",
     "mocha": "^1.19.0",
     "should": "^3.3.2",

@@ -1,6 +1,6 @@
 # Consolator
 
-A JavaScript library for printing styled messages to your console.
+A JavaScript library for printing styled messages to the console.
 
 ## Caveat
 
