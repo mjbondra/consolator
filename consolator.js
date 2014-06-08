@@ -18,16 +18,18 @@
       this.opts.parent.bracket = opts.parent.bracket || false;
 
       // default styles
-      this.opts.boolean = opts.boolean || { color: 'gray' };
-      this.opts.bracket = opts.bracket || { color: 'gray' };
-      this.opts.colon = opts.colon || { color: 'black' };
-      this.opts.comma = opts.comma || { color: 'black' };
-      this.opts.hyphen = opts.hyphen || { color: 'gray' };
-      this.opts.key = opts.key || { color: 'black' };
-      this.opts.number = opts.number || { color: 'gray' };
-      this.opts.quote = opts.quote || { color: 'black' };
-      this.opts.string = opts.string || { color: 'gray' };
-      this.opts.timestamp = opts.timestamp || { color: 'gray' };
+      this.opts.punctuation = opts.punctuation = opts.punctuation || { color: 'gray' };
+      this.opts.boolean = opts.boolean || {};
+      this.opts.bracket = opts.bracket || opts.punctuation;
+      this.opts.colon = opts.colon || opts.punctuation;
+      this.opts.comma = opts.comma || opts.punctuation;
+      this.opts.hyphen = opts.hyphen || opts.punctuation;
+      this.opts.key = opts.key || { 'font-weight': 'bold' };
+      this.opts.number = opts.number || {};
+      this.opts.quote = opts.quote || opts.punctuation;
+      this.opts.string = opts.string || {};
+      this.opts.timestamp = opts.timestamp || {};
+      this.opts.type = opts.type || { 'font-weight': 'bold' };
     };
 
     // application & consumption
@@ -49,8 +51,7 @@
       var i = data.length;
       while (i--) if (data[i] || attributes['background-image']) {
         data[i] = objectify(data[i], opts);
-        var attributeKeys = Object.keys(attributes);
-        var k = attributeKeys.length;
+        var attributeKeys = Object.keys(attributes), k = attributeKeys.length;
         while (k--) if (!data[i][attributeKeys[k]]) data[i][attributeKeys[k]] = attributes[attributeKeys[k]];
         dataString += opts.open + JSON.stringify(data[i]) + opts.close;
       }
@@ -70,18 +71,16 @@
     var server = function (dataArray, data) {
       var csi = '\x1B[';
       var styles = [];
-      var keys = Object.keys(data);
-      var k = keys.length;
-      while (k--) if (keys[k] !== 'msg') styles.push(keys[k] !== 'background-color' ? ansiKeys[data[keys[k]]] || data[keys[k]] : ansiKeys[data[keys[k]]] + 10);
+      var keys = Object.keys(data), i = keys.length;
+      while (i--) if (keys[i] !== 'msg') styles.push(keys[i] !== 'background-color' ? ansiKeys[data[keys[i]]] || data[keys[i]] : ansiKeys[data[keys[i]]] + 10);
       dataArray[0] += csi + styles.join(';') + 'm' + data.msg + csi + '0m';
       return dataArray;
     };
     var browser = function (dataArray, data) {
       dataArray[0] = dataArray[0] + '%c' + data.msg;
       var styles = [];
-      var keys = Object.keys(data);
-      var k = keys.length;
-      while (k--) if (keys[k] !== 'msg') styles.push(keys[k] + ': ' + data[keys[k]]);
+      var keys = Object.keys(data), i = keys.length;
+      while (i--) if (keys[i] !== 'msg') styles.push(keys[i] + ': ' + data[keys[i]]);
       dataArray.push(styles.join('; '));
       return dataArray;
     };
@@ -283,25 +282,43 @@
     C.prototype.object = function (data, opts) {
       if (typeof data !== 'object') return;
       opts = opts || {};
-      opts.object = opts.object || {};
-      opts.colors = opts.colors || {};
+      opts.method = opts.method || 'log';
+      opts.post = opts.post === false ? false : true;
+      opts.singleLine = opts.post === false ? true : opts.singleLine === true ? true : false;
       var dataString = '';
-      var keys = Object.keys(data).reverse();
-      var i = keys.length;
+      var keys = Object.keys(data).reverse(), i = keys.length;
+      var objectType = data instanceof Array ? 'Array' : 'Object';
+      if (!opts.singleLine) post(support.console('group') ? 'group' : opts.method, opts.title || objectType, this.opts);
       while (i--) {
+        var line = '';
         var type = typeof data[keys[i]];
-        if (i !== keys.length - 1) dataString += digest(', ', opts.comma || this.opts.comma, this.opts);
-        dataString += digest(keys[i], opts.key || this.opts.key, this.opts) + digest(': ', opts.colon || this.opts.colon, this.opts);
-        if (type === 'string') dataString += digest('"', opts.quote || this.opts.quote, this.opts) + digest(data[keys[i]], opts.string || this.opts.string, this.opts) + digest('"', opts.quote || this.opts.quote, this.opts);
-        else if (type === 'number') dataString += digest(data[keys[i]], opts.number || this.opts.number, this.opts);
-        else if (type === 'boolean') dataString += digest(data[keys[i]], opts.boolean || this.opts.boolean, this.opts);
-        else if (type === 'object') {
-          dataString += digest('{ ', opts.bracket || this.opts.bracket, this.opts) + this.object(data[keys[i]]) + digest(' }', opts.bracket || this.opts.bracket, this.opts);
+        if (opts.singleLine && i !== keys.length - 1) line += digest(',', opts.comma || opts.punctuation || this.opts.comma, this.opts) + ' ';
+        line += digest(keys[i], opts.key || this.opts.key, this.opts) + digest(':', opts.colon || opts.punctuation || this.opts.colon, this.opts) + ' ';
+        switch (type) {
+          case 'object':
+            var _opts = Object.create(opts);
+            opts.title = keys[i];
+            if (opts.singleLine) _opts.post = false;
+            line += digest('{', opts.bracket || opts.punctuation || this.opts.bracket, this.opts) + ' ';
+            line += this.object(data[keys[i]], _opts);
+            line += ' ' + digest('}', opts.bracket || opts.punctuation || this.opts.bracket, this.opts);
+            break;
+          case 'string':
+          case 'boolean':
+          case 'number':
+            if (type === 'string') line += digest('"', opts.quote || opts.punctuation || this.opts.quote, this.opts);
+            line += digest(data[keys[i]], opts[type] || this.opts[type], this.opts);
+            if (type === 'string') line += digest('"', opts.quote || opts.punctuation || this.opts.quote, this.opts);
+            if (opts.post && !opts.singleLine) post(opts.method, line, this.opts);
+            break;
+          default:
+            break;
         }
+        if (opts.singleLine) dataString += line;
       }
-      console.log(opts.post);
-      if (opts.post === false) return dataString;
-      return post(opts.method || 'log', dataString, this.opts);
+      if (!opts.singleLine && support.console('groupEnd')) return console.groupEnd();
+      if (!opts.post) return dataString;
+      return post(opts.method, dataString, this.opts);
     };
 
     // manual
