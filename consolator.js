@@ -282,18 +282,24 @@
     C.prototype.object = function (data, opts) {
       if (typeof data !== 'object') return;
       opts = opts || {};
+      opts.indent = opts.indent || '';
       opts.method = opts.method || 'log';
       opts.post = opts.post === false ? false : true;
       opts.singleLine = opts.post === false ? true : opts.singleLine === true ? true : false;
       var dataString = '';
       var keys = Object.keys(data).reverse(), i = keys.length;
-      var objectType = data instanceof Array ? 'Array' : 'Object';
-      if (!opts.singleLine) post(support.console('group') ? 'group' : opts.method, opts.title || objectType, this.opts);
+      if (!opts.singleLine) {
+        var objectType = data instanceof Array ? 'Array' : 'Object';
+        var objectTitle = opts.title ? digest(opts.title, opts.key || this.opts.key, this.opts) + digest(':', opts.colon || opts.punctuation || this.opts.colon, this.opts) : digest(objectType, opts.type || this.opts.type, this.opts);
+        if (!support.console('group')) objectTitle = opts.indent + objectTitle;
+        post(support.console('group') ? 'group' : opts.method, objectTitle, this.opts);
+      }
+      opts.indent = opts.indent + '  ';
       while (i--) {
-        var line = '';
+        var line = support.console('group') || opts.singleLine ? '' : opts.indent;
         var type = typeof data[keys[i]];
         if (opts.singleLine && i !== keys.length - 1) line += digest(',', opts.comma || opts.punctuation || this.opts.comma, this.opts) + ' ';
-        line += digest(keys[i], opts.key || this.opts.key, this.opts) + digest(':', opts.colon || opts.punctuation || this.opts.colon, this.opts) + ' ';
+        line += digest(keys[i], opts.key || opts.punctuation || this.opts.key, this.opts) + digest(':', opts.colon || opts.punctuation || this.opts.colon, this.opts) + ' ';
         switch (type) {
           case 'object':
             var _opts = Object.create(opts);
@@ -318,7 +324,7 @@
       }
       if (!opts.singleLine && support.console('groupEnd')) return console.groupEnd();
       if (!opts.post) return dataString;
-      return post(opts.method, dataString, this.opts);
+      if (opts.singleLine) return post(opts.method, dataString, this.opts);
     };
 
     // manual
