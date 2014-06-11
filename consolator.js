@@ -9,17 +9,10 @@
       this.opts.open = opts.open || '{{{';
       this.opts.close = opts.close || '}}}';
 
-      // global
-      this.opts.showTimestamp = opts.showTimestamp || false;
-
-      // parent object
-      this.opts.parent = opts.parent = opts.parent || {};
-      this.opts.parent.group = opts.parent.group || false;
-      this.opts.parent.bracket = opts.parent.bracket || false;
-
       // default styles
       this.opts.punctuation = opts.punctuation = opts.punctuation || { color: 'gray' };
       this.opts.boolean = opts.boolean || {};
+      this.opts.brace = opts.brace || opts.punctuation;
       this.opts.bracket = opts.bracket || opts.punctuation;
       this.opts.colon = opts.colon || opts.punctuation;
       this.opts.comma = opts.comma || opts.punctuation;
@@ -56,11 +49,6 @@
         dataString += opts.open + JSON.stringify(data[i]) + opts.close;
       }
       return dataString;
-    };
-    var post = function (method, args, opts) {
-      if (!support.console(method)) return;
-      if (support.apply(method)) return console[method].apply(console, apply(args, opts));
-      return console[method](apply(args, opts).join(' '));
     };
 
     // context
@@ -102,18 +90,43 @@
       return '';
     };
 
+    // finalizers
+    C.prototype.concat = function (args) {
+      if (!args) return;
+      args = Array.prototype.slice.call(args, 0).reverse();
+      var argString = '';
+      var i = args.length;
+      while (i--) {
+        if (i !== args.length - 1) argString += ' ' + digest('-', this.opts.hyphen, this.opts) + ' ';
+        var type = typeof args[i];
+        if (type === 'object') argString += this.object(args[i], { post: false });
+        else argString += args[i];
+      }
+      return argString;
+    };
+    C.prototype.post = function (method, args, opts) {
+      if (!support.console(method)) return;
+      if (!args) return;
+      args = typeof args === 'string' ? args : this.concat(args);
+      if (support.apply(method)) return console[method].apply(console, apply(args, opts));
+      return console[method](apply(args, opts).join(' '));
+    };
+
     // extentions of the original console object
-    C.prototype.log = function (data) {
-      return post('log', data, this.opts);
+    C.prototype.log = function () {
+      return this.post('log', arguments, this.opts);
     };
-    C.prototype.error = function (data) {
-      return post('error', data, this.opts);
+    C.prototype.error = function () {
+      this.opts.method = 'error';
+      return this.post('error', arguments, this.opts);
     };
-    C.prototype.info = function (data) {
-      return post('info', data, this.opts);
+    C.prototype.info = function () {
+      this.opts.method = 'info';
+      return this.post('info', arguments, this.opts);
     };
-    C.prototype.warn = function (data) {
-      return post('warn', data, this.opts);
+    C.prototype.warn = function () {
+      this.opts.method = 'warn';
+      return this.post('warn', arguments, this.opts);
     };
 
     // text colors
@@ -258,7 +271,7 @@
       var self = this;
       if (!support.images()) { // post fallback message
         window.setTimeout(function () {
-          post(opts.method || 'log', opts.fallback || '', self.opts);
+          self.post(opts.method || 'log', opts.fallback || '', self.opts);
         }, 50);
         return;
       }
@@ -266,7 +279,7 @@
       img.onload = function () { // post image when it has loaded
         var width = opts.width ? opts.width : opts.height ? opts.height * img.width / img.height : img.width;
         var height = opts.height ? opts.height : opts.width ? opts.width * img.height / img.width : img.height;
-        post(opts.method || 'log', digest('', imageStyles(url, width, height), self.opts), self.opts);
+        self.post(opts.method || 'log', digest('', imageStyles(url, width, height), self.opts), self.opts);
       };
       img.src = url;
       return;
@@ -286,45 +299,64 @@
       opts.method = opts.method || 'log';
       opts.post = opts.post === false ? false : true;
       opts.singleLine = opts.post === false ? true : opts.singleLine === true ? true : false;
+
+      // punctuation
+      var brace = [
+        digest('{', opts.brace || opts.punctuation || this.opts.brace, this.opts),
+        digest('}', opts.brace || opts.punctuation || this.opts.brace, this.opts)
+      ];
+      var bracket = [
+        digest('[', opts.bracket || opts.punctuation || this.opts.bracket, this.opts),
+        digest(']', opts.bracket || opts.punctuation || this.opts.bracket, this.opts)
+      ];
+      var colon = digest(':', opts.colon || opts.punctuation || this.opts.colon, this.opts);
+      var comma = digest(',', opts.comma || opts.punctuation || this.opts.comma, this.opts);
+      var quote = digest('"', opts.quote || opts.punctuation || this.opts.quote, this.opts);
+
+      // preparation
       var dataString = '';
       var keys = Object.keys(data).reverse(), i = keys.length;
       if (!opts.singleLine) {
         var objectType = data instanceof Array ? 'Array' : 'Object';
-        var objectTitle = opts.title ? digest(opts.title, opts.key || this.opts.key, this.opts) + digest(':', opts.colon || opts.punctuation || this.opts.colon, this.opts) : digest(objectType, opts.type || this.opts.type, this.opts);
+        var objectTitle = opts.title ? digest(opts.title, opts.key || this.opts.key, this.opts) + colon : digest(objectType, opts.type || this.opts.type, this.opts);
         if (!support.console('group')) objectTitle = opts.indent + objectTitle;
-        post(support.console('group') ? 'group' : opts.method, objectTitle, this.opts);
+        this.post(support.console('group') ? 'group' : opts.method, objectTitle, this.opts);
       }
-      opts.indent = opts.indent + '  ';
+      opts.indent = opts.indent + '    ';
+
+      // iteration
       while (i--) {
         var line = support.console('group') || opts.singleLine ? '' : opts.indent;
         var type = typeof data[keys[i]];
-        if (opts.singleLine && i !== keys.length - 1) line += digest(',', opts.comma || opts.punctuation || this.opts.comma, this.opts) + ' ';
-        line += digest(keys[i], opts.key || opts.punctuation || this.opts.key, this.opts) + digest(':', opts.colon || opts.punctuation || this.opts.colon, this.opts) + ' ';
+        if (opts.singleLine && i !== keys.length - 1) line += comma + ' ';
+        line += digest(keys[i], opts.key || opts.punctuation || this.opts.key, this.opts) + colon + ' ';
         switch (type) {
           case 'object':
             var _opts = Object.create(opts);
-            opts.title = keys[i];
+            var open = data[keys[i]] instanceof Array ? bracket[0] : brace[0];
+            var close = data[keys[i]] instanceof Array ? bracket[1] : brace[1];
+            _opts.title = keys[i];
             if (opts.singleLine) _opts.post = false;
-            line += digest('{', opts.bracket || opts.punctuation || this.opts.bracket, this.opts) + ' ';
-            line += this.object(data[keys[i]], _opts);
-            line += ' ' + digest('}', opts.bracket || opts.punctuation || this.opts.bracket, this.opts);
+            line += open + ' ' + this.object(data[keys[i]], _opts) + ' ' + close;
             break;
           case 'string':
           case 'boolean':
           case 'number':
-            if (type === 'string') line += digest('"', opts.quote || opts.punctuation || this.opts.quote, this.opts);
+            if (type === 'string') line += quote;
             line += digest(data[keys[i]], opts[type] || this.opts[type], this.opts);
-            if (type === 'string') line += digest('"', opts.quote || opts.punctuation || this.opts.quote, this.opts);
-            if (opts.post && !opts.singleLine) post(opts.method, line, this.opts);
+            if (type === 'string') line += quote;
+            if (opts.post && !opts.singleLine) this.post(opts.method, line, this.opts);
             break;
           default:
             break;
         }
         if (opts.singleLine) dataString += line;
       }
+
+      // conclusion
       if (!opts.singleLine && support.console('groupEnd')) return console.groupEnd();
       if (!opts.post) return dataString;
-      if (opts.singleLine) return post(opts.method, dataString, this.opts);
+      if (opts.singleLine) return this.post(opts.method, dataString, this.opts);
     };
 
     // manual
@@ -417,13 +449,18 @@
       return ( window.chrome || console.firebug || ( console.log.toString && console.log.toString().indexOf('apply') !== -1 ));
     };
 
-    // ensure Object.keys support; source: http://tokenposts.blogspot.com.au/2012/04/javascript-objectkeys-browser.html
+    // ensure Object method support; Object.keys source: http://tokenposts.blogspot.com.au/2012/04/javascript-objectkeys-browser.html
     if (!Object.keys) Object.keys = function (o) {
-      if (o !== Object(o))
-        throw new TypeError('Object.keys called on a non-object');
+      if (o !== Object(o)) throw new TypeError('Object.keys called on a non-object');
       var k=[], p;
       for (p in o) if (Object.prototype.hasOwnProperty.call(o,p)) k.push(p);
       return k;
+    };
+    if (!Object.create) Object.create = function (o) {
+      if (o !== Object(o)) throw new TypeError('Object.create called on a non-object');
+      var _o = {}, k = Object.keys(o), i = k.length;
+      while (i--) _o[k[i]] = o[k[i]];
+      return _o;
     };
 
     return C;
