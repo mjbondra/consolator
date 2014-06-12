@@ -2,5 +2,8 @@
   "name": "consolator",
   "version": "0.0.3",
   "description": "A javascript library for printing styled messages to the console.",
-  "main": "consolator.min.js"
+  "main": "consolator.min.js",
+  "ignore": [
+    "node_modules"
+  ]
 }

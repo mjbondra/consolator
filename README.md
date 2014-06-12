@@ -12,6 +12,12 @@ This is a proof of concept -- that a library, with a single API, can create styl
 npm install consolator
 ```
 
+OR
+
+```
+bower install consolator
+```
+
 ## How It (Currently) Works
 
 Consolator wraps messages in POJOs (Plain Old JavaScript Objects) and then stringifies them, adding a surrounding, customizable opening and closing token -- ```{{{``` and ```}}}``` by default.
