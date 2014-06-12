@@ -284,6 +284,7 @@
 
     // timestamp
     C.prototype.date = C.prototype.time = function (opts) {
+      opts = opts || {};
       var date = new Date();
       return digest(date.getDate() + ' ' + months[date.getMonth()].abbreviation + ' ' + twoChar(date.getHours()) + ':' + twoChar(date.getMinutes()) + ':' + twoChar(date.getSeconds()), opts.time || this.opts.time, this.opts);
     };
