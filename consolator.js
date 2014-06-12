@@ -112,20 +112,17 @@
       return console[method](apply(args, opts).join(' '));
     };
 
-    // extentions of the original console object
+    // extensions of the original console object
     C.prototype.log = function () {
       return this.post('log', arguments, this.opts);
     };
     C.prototype.error = function () {
-      this.opts.method = 'error';
       return this.post('error', arguments, this.opts);
     };
     C.prototype.info = function () {
-      this.opts.method = 'info';
       return this.post('info', arguments, this.opts);
     };
     C.prototype.warn = function () {
-      this.opts.method = 'warn';
       return this.post('warn', arguments, this.opts);
     };
 
