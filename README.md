@@ -31,7 +31,8 @@ Server Example:
 ```
 var c = require('consolator').create();
 
-c.log(c.time(), c.green('This demostrates ' + c.bold('nested')) + ' styles');
+c.log(c.time(), c.green('This demonstrates ' + c.bold('nested')) + ' styles');
+
 ```
 
 Browser Example (supports styled output with Chrome and Firebug):
@@ -41,7 +42,14 @@ Browser Example (supports styled output with Chrome and Firebug):
 ```
 var c = new Consolator();
 
-c.log(c.time(), c.green('This demostrates ' + c.bold('nested')) + ' styles');
+c.log(c.time(), c.green('This demonstrates ' + c.bold('nested')) + ' styles');
+c.image('http://placekitten.com/600/400', {
+  width: 300, 
+  fallback: c.css({ 
+    'font-size': '24px',
+    'font-weight': 'bold' 
+  }, 'Kitten') 
+});
 
 ```
 
