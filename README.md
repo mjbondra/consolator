@@ -32,6 +32,7 @@ Server Example:
 var c = require('consolator').create();
 
 c.log(c.time(), c.green('This demonstrates ' + c.bold('nested')) + ' styles');
+c.log(c.ansi(5, 'Blinking text'));
 
 ```
 
