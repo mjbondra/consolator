@@ -4,11 +4,7 @@ A JavaScript library for printing styled messages to the console.
 
 ## Caveat
 
-This is a proof of concept -- that a single library, with a single API, can create styled console output on both the server (Node.js) and in the browser (Chrome & Firebug).
-
-Significant and/or breaking changes will be marked as a major release (0.x.x, 1.x.x, 2.x.x, etc).
-
-All releases before 1.x.x should be considered unstable, and unfit for production. Subsequent to that release, even-numbered minor releases will denote stable releases (1.0.x, 1.2.x, etc), while odd-numbered minor releases will be unstable (1.1.x, 1.3.x, etc).
+This is a proof of concept -- that a library, with a single API, can create styled console output on both the server (Node.js) and in the browser (Chrome & Firebug).
 
 ## Installation
 
@@ -18,36 +14,69 @@ npm install consolator
 
 ## How It (Currently) Works
 
-Consolator wraps messages in POJOs and then stringifies them, adding a surrounding, customizable opening and closing token ('{{{' and '}}}' by default).
+Consolator wraps messages in POJOs (Plain Old JavaScript Objects) and then stringifies them, adding a surrounding, customizable opening and closing token -- ```{{{``` and ```}}}``` by default.
 
-Because of how it currently works, it requires that consolator methods be used to render these strings to the console -- using the native console methods directly will yield a printed string that contains Consolator objects and tokens rather than styled output.
-
-If the native console does not support styled output, messages are simply printed without styles.
+Those strigified objects are then passed to a posting method, like ```Consolator.prototype.log```, which outputs them to the console using the appropriate styling syntax.
 
 ## Usage
 
-Server:
+Server Example:
 
 ```
-var Consolator = require('consolator');
-var c = new Consolator();
+var c = require('consolator').create();
 
-c.log(c.green('This demostrates ' + c.bold('nested')) + ' styles');
+c.log(c.time(), c.green('This demostrates ' + c.bold('nested')) + ' styles');
 ```
 
-Browser (supports styled output with Chrome and Firebug):
+Browser Example (supports styled output with Chrome and Firebug):
 
 ```<script src="consolator.min.js"></script>```
 
 ```
 var c = new Consolator();
 
-c.log(c.green('This demostrates ' + c.bold('nested')) + ' styles');
+c.log(c.time(), c.green('This demostrates ' + c.bold('nested')) + ' styles');
+
 ```
 
 ## API
 
 This is a placeholder for a more complete explanation.
+
+### Consolator Object
+
+* Consolator.create(opts)
+
+OR
+
+* new Consolator(opts)
+
+#### Options
+
+* opts.open
+* opts.close
+
+The opening and closing tokens for stringified Consolator objects. ```{{{``` and ```}}}``` by default.
+
+* opts.punctuation
+* opts.boolean
+* opts.brace
+* opts.bracket
+* opts.colon
+* opts.comma
+* opts.hyphen
+* opts.key
+* opts.number
+* opts.quote
+* opts.string
+* opts.time
+* opts.type
+
+Any of these options can be set with a properties object like the following:
+
+```
+{ punctuation: { color: 'gray', 'font-weight': 'bold' }}
+```
 
 ### Posting Methods
 
@@ -123,13 +152,13 @@ These must be wrapped within a posting method, such as ```Consolator.prototype.l
 
 #### Timestamp
 
-* Consolator.prototype.time()
+* Consolator.prototype.time(opts)
 
 #### ANSI Escape Codes (server)
 
-[http://en.wikipedia.org/wiki/ANSI_escape_code]()
-
 * Consolator.prototype.ansi(code, string|number|boolean|object)
+
+[http://en.wikipedia.org/wiki/ANSI_escape_code]()
 
 #### CSS (Chrome & Firebug)
 
@@ -138,7 +167,7 @@ These must be wrapped within a posting method, such as ```Consolator.prototype.l
 The ```properties``` argument should take the form of an object. For example, the following would be valid:
 
 ```
-{ padding: '10px 20px', 'font-size': '14px', 'font-weight': 'bold' }
+{ padding: '0 10px', 'font-size': '14px', 'font-weight': 'bold' }
 ```
 
 ## Tests
