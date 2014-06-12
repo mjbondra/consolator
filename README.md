@@ -82,7 +82,7 @@ Any of these options can be set with a properties object like the following:
 
 #### Extensions of Console Methods
 
-These methods are required to post non-posting Consolator methods.
+These methods are required to post the output of non-posting Consolator methods.
 
 * Consolator.prototype.error(arguments)
 * Consolator.prototype.info(arguments)
@@ -94,11 +94,11 @@ These methods are required to post non-posting Consolator methods.
 * Consolator.prototype.object(object, opts)
 * Consolator.prototype.image(url, opts)
 
-Console images are only supported by Chrome at this time. ```opts.fallback``` is gracefully-degrading option that has the effect of a posting method, and can contain any of the non-posting methods as a part of its value. For example, ```{ fallback: c.bold('some text') }``` would be a valid ```opts``` argument.
+Console images are only supported by Chrome at this time. ```opts.fallback``` is a gracefully-degrading option that has the effect of a posting method, and can contain any of the non-posting methods as a part of its value. For example, ```{ fallback: c.bold('some text') }``` would be a valid ```opts``` argument.
 
 ### Non-posting Methods
 
-These must be wrapped within a posting method, such as ```Consolator.prototype.log```
+These must be wrapped within a posting method, like ```Consolator.prototype.log```
 
 #### Colors
 
