@@ -4,7 +4,7 @@ A JavaScript library for printing styled messages to the console.
 
 ## Caveat
 
-This is a proof of concept -- that a library, with a single API, can create styled console output on both the server (Node.js) and in the browser (Chrome & Firebug).
+This is a proof of concept -- that a library, with a single API, can create styled console output on both the server (Node.js) and in the browser.
 
 ## Installation
 
@@ -72,6 +72,10 @@ OR
 * opts.close
 
 The opening and closing tokens for stringified Consolator objects. ```{{{``` and ```}}}``` by default.
+
+* opts.fallbackSupport
+
+Consolator will print unstyled messages for all browsers other than Chrome if this option is set to ```true```. It is set to ```false``` by default. (Note: ```Consolator.prototype.image``` has a seperate mechanism for handling fallbacks.)
 
 * opts.punctuation
 * opts.boolean

@@ -8,6 +8,7 @@
       this.opts = opts = opts || {};
       this.opts.open = opts.open || '{{{';
       this.opts.close = opts.close || '}}}';
+      this.opts.fallbackSupport = opts.fallbackSupport || false;
 
       // default styles
       this.opts.punctuation = opts.punctuation = opts.punctuation || { color: 'gray' };
@@ -33,7 +34,7 @@
       var i = data.length;
       while (i--) if (data[i]) {
         data[i] = objectify(data[i], opts);
-        dataArray = env === 'browser' ? support.styles() ? browser(dataArray, data[i]) : bypass(dataArray, data[i]) : server(dataArray, data[i]);
+        dataArray = env === 'browser' ? support.styles(opts.fallbackSupport) ? browser(dataArray, data[i]) : bypass(dataArray, data[i]) : server(dataArray, data[i]);
       }
       return dataArray;
     };
@@ -84,9 +85,8 @@
     };
     var stringify = function (data) {
       var type = typeof data;
-      if (type === 'string') return data;
+      if (type === 'string' || type === 'number' || type === 'boolean') return String(data);
       if (type === 'object') return JSON.stringify(data);
-      if (type === 'number' || type === 'boolean') return String(data);
       return '';
     };
 
@@ -97,10 +97,10 @@
       var argString = '';
       var i = args.length;
       while (i--) {
-        if (i !== args.length - 1) argString += ' ' + digest('-', this.opts.hyphen, this.opts) + ' ';
         var type = typeof args[i];
+        if (i !== args.length - 1) argString += ' ' + digest('-', this.opts.hyphen, this.opts) + ' ';
+        if (type === 'string' || type === 'number' || type === 'boolean') argString += digest(String(args[i]), this.opts[type], this.opts);
         if (type === 'object') argString += this.object(args[i], { post: false });
-        else argString += args[i];
       }
       return argString;
     };
@@ -443,8 +443,8 @@
     support.images = function () {
       return !!window.chrome;
     };
-    support.styles = function () {
-      return ( window.chrome || console.firebug || ( console.log.toString && console.log.toString().indexOf('apply') !== -1 ));
+    support.styles = function (fallbackSupport) {
+      return !!window.chrome || !fallbackSupport;
     };
 
     // ensure Object method support; Object.keys source: http://tokenposts.blogspot.com.au/2012/04/javascript-objectkeys-browser.html
