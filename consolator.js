@@ -360,7 +360,7 @@
     // manual
     C.prototype.ansi = function (code, data) {
       if (env !== 'server') return data;
-      var ojb = {};
+      var obj = {};
       obj['ansi-' + code] = code;
       return digest(data, obj, this.opts);
     };
